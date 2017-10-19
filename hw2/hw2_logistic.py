@@ -7,10 +7,10 @@ import pandas as pd
 # $5: provided test feature (X_test)
 # $6: prediction.csv
 
-def readTrainData():
+def readTrainData(X_train, Y_train):
     # traing Data
-    X_train = pd.read_csv('./data/X_train').as_matrix() #shape: (32561, 106)
-    Y_train = pd.read_csv('./data/Y_train').as_matrix() #shape: (32561, 1)
+    X_train = pd.read_csv(X_train).as_matrix() #shape: (32561, 106)
+    Y_train = pd.read_csv(Y_train).as_matrix() #shape: (32561, 1)
     Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
     mean = np.mean(X_train, axis=0) #shape: (106,)
     std = np.std(X_train, axis=0) #shape: (106,)
@@ -56,19 +56,17 @@ def logisticRegression(LEARNING_RATE, ITERATION, X_train, Y_train):
         weights_descent = weights_descent - LEARNING_RATE / np.sqrt(W_lr) * W_grad
         current_loss = calculateLoss(Y_train, f)
         current_accuracy = calculateAccuracy(Y_train, f)
-
         print('\rIteration: {} \tAccuracy: {} \tLoss: {}'.format(str(index+1), current_accuracy, current_loss), end='' ,flush=True)
-        # print('\rIteration: {}, Loss: {}, Accuracy: {}'.format(str(index+1), current_loss, current_accuracy), end='' ,flush=True)
     print()
     return bias_descent, weights_descent
 
 def main(argv):
     LEARNING_RATE = 0.5
     ITERATION = 3500
-    X_train, Y_train, mean, std = readTrainData()
+    X_train, Y_train, mean, std = readTrainData(argv[1], argv[2])
     final_bias, final_weights = logisticRegression(LEARNING_RATE, ITERATION, X_train, Y_train)
     writeText = "id,label\n"
-    X_test = pd.read_csv('./data/X_test').as_matrix() #shape: (16281, 106)
+    X_test = pd.read_csv(argv[3]).as_matrix() #shape: (16281, 106)
     X_test = (X_test - mean) / (std + 1e-100)
 
     predict_income = final_bias + np.dot(X_test, final_weights)
@@ -78,7 +76,7 @@ def main(argv):
         if i>=0:
             result = 1
         writeText += str(index+1) + "," + str(int(result)) + "\n"
-    filename = './result/logistic.csv'
+    filename = argv[4]
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as f:
         f.write(writeText)
