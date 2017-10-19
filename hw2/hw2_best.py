@@ -7,13 +7,13 @@ import pandas as pd
 # $5: provided test feature (X_test)
 # $6: prediction.csv
 
-def readTrainData():
+def readTrainData(X_train, Y_train):
     # traing Data
-    X_train = pd.read_csv('./data/X_train').as_matrix() #shape: (32561, 106)
-    Y_train = pd.read_csv('./data/Y_train').as_matrix() #shape: (32561, 1)
+    X_train = pd.read_csv(X_train).as_matrix() #shape: (32561, 106)
+    Y_train = pd.read_csv(Y_train).as_matrix() #shape: (32561, 1)
     Y_train = Y_train.reshape(Y_train.shape[0]) #shape: (32561,)
 
-    X_train = np.concatenate((X_train[:,1:], X_train[:,[1,3,4,5]]**2, X_train[:,[1,3,4,5]]**3, np.log(X_train[:, [3]] + 1e-100)), axis=1)
+    X_train = np.concatenate((X_train[:,1:], X_train[:,[0,1,3,4,5]]**2, X_train[:,[0,1,3,4,5]]**3, X_train[:,[0,1,3,4,5]]**4, np.log(X_train[:, [0,3]] + 1e-100)), axis=1)
     mean = np.mean(X_train, axis=0) #shape: (106,)
     std = np.std(X_train, axis=0) #shape: (106,)
     X_train = (X_train - mean) / (std + 1e-100)
@@ -64,13 +64,25 @@ def logisticRegression(LEARNING_RATE, ITERATION, X_train, Y_train):
     return bias_descent, weights_descent
 
 def main(argv):
-    LEARNING_RATE = 0.5
-    ITERATION = 5000
-    X_train, Y_train, mean, std = readTrainData()
+    LEARNING_RATE = 0.7
+    ITERATION = 3000
+    X_train, Y_train, mean, std = readTrainData(argv[1], argv[2])
+
+    # X_train = X_train[:int(len(X_train)*0.9)]
+    # Y_train = Y_train[:int(len(Y_train)*0.9)]
+
     final_bias, final_weights = logisticRegression(LEARNING_RATE, ITERATION, X_train, Y_train)
+
+    # X_test_validation = X_train[int(len(X_train)*0.9):]
+    # Y_test_validation = Y_train[int(len(Y_train)*0.9):]
+    #
+    # predict_income = final_bias + np.dot(X_test_validation, final_weights)
+    # f = sigmoid(np.dot(X_test_validation, final_weights) + final_bias)
+    # print(calculateAccuracy(Y_test_validation, f))
+
     writeText = "id,label\n"
-    X_test = pd.read_csv('./data/X_test').as_matrix() #shape: (16281, 106)
-    X_test = np.concatenate((X_test[:,1:], X_test[:,[1,3,4,5]]**2, X_test[:,[1,3,4,5]]**3, np.log(X_test[:, [3]] + 1e-100)), axis=1)
+    X_test = pd.read_csv(argv[3]).as_matrix() #shape: (16281, 106)
+    X_test = np.concatenate((X_test[:,1:], X_test[:,[0,1,3,4,5]]**2, X_test[:,[0,1,3,4,5]]**3, X_test[:,[0,1,3,4,5]]**4, np.log(X_test[:, [0,3]] + 1e-100)), axis=1)
     X_test = (X_test - mean) / (std + 1e-100)
 
     predict_income = final_bias + np.dot(X_test, final_weights)
@@ -80,7 +92,7 @@ def main(argv):
         if i>=0:
             result = 1
         writeText += str(index+1) + "," + str(int(result)) + "\n"
-    filename = './result/logistic.csv'
+    filename = argv[4]
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as f:
         f.write(writeText)
