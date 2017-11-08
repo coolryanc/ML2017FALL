@@ -38,10 +38,9 @@ if __name__ == '__main__':
     train_label = train_label[:int(len(train_label)*9/10)]
 
     # OUTPUT_SIZE = train_label.shape[2] # 48phone_char
-    ITERATION = 10
+    ITERATION = 30
     BATCH_SIZE = 100
-    CELL_SIZE = 256 # numbers of neural unit
-    #
+
     model = Sequential()
     model.add(Convolution2D(64, (3, 3), padding='same',
                      input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
@@ -55,19 +54,32 @@ if __name__ == '__main__':
                      activation='relu'))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.25))
+
+    model.add(Convolution2D(256, (3, 3), padding='same',
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
+                     activation='relu'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.3))
+
+    model.add(Convolution2D(512, (3, 3), padding='same',
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
+                     activation='relu'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.3))
 
     model.add(Flatten())
 
     model.add(Dense(256, activation='relu'))
     model.add(BatchNormalization())
-    model.add(Dropout(0.2))
     model.add(Dense(7))
     model.add(Activation('softmax'))
 
-    # optimizer = RMSprop(lr=0.0005)
+    optimizer = RMSprop()
     model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
+                  optimizer= optimizer,
                   metrics=['accuracy'])
     model.summary()
     # # early_stopping = EarlyStopping(monitor='val_loss', patience=3)
@@ -75,7 +87,7 @@ if __name__ == '__main__':
     #
     score = model.evaluate(train_data_test, train_label_test)
     print("Loss: {}".format(score[0]))
-    print("Accuract: {}".format(score[1]))
+    print("Accuracy: {}".format(score[1]))
     #
     model.save('./model/model_cnn.h5')
     # del model
