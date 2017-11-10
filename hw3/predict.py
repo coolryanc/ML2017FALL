@@ -9,6 +9,7 @@ from keras.models import load_model
 from collections import OrderedDict
 import itertools
 import sys, os
+from keras.utils import plot_model
 
 def readTrainingData():
     WIDTH = HEIGHT = 48
@@ -35,6 +36,7 @@ def main(argv):
     testing_data = readTrainingData()
 
     model = load_model('./model/model_cnn.h5')
+    
     # print("Start reading model ...")
     # if argv[1] == "rnn" or argv[1] == "best":
     #     model = load_model('./model/model_rnn.h5')

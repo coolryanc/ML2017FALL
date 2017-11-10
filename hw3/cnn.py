@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 from keras.utils import np_utils
 from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout, BatchNormalization, Convolution2D, MaxPooling2D, Flatten
+from keras.layers import Activation, Dense, Dropout, BatchNormalization, Convolution2D, MaxPooling2D, Flatten, LeakyReLU
 from keras.optimizers import Adam, RMSprop
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
+import utils
+from keras.utils import plot_model
 
 def readTrainingData():
     WIDTH = HEIGHT = 48
@@ -43,29 +45,36 @@ if __name__ == '__main__':
 
     model = Sequential()
     model.add(Convolution2D(64, (3, 3), padding='same',
-                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
-                     activation='relu'))
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3])))
+    model.add(LeakyReLU(alpha=0.03))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
     model.add(Dropout(0.2))
 
     model.add(Convolution2D(128, (3, 3), padding='same',
-                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
-                     activation='relu'))
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3])))
+    model.add(LeakyReLU(alpha=0.03))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
     model.add(Dropout(0.25))
 
     model.add(Convolution2D(256, (3, 3), padding='same',
-                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
-                     activation='relu'))
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3])))
+    model.add(LeakyReLU(alpha=0.03))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
     model.add(Dropout(0.3))
 
     model.add(Convolution2D(512, (3, 3), padding='same',
-                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3]),
-                     activation='relu'))
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3])))
+    model.add(LeakyReLU(alpha=0.03))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+    model.add(Dropout(0.3))
+
+    model.add(Convolution2D(512, (3, 3), padding='same',
+                     input_shape=(train_data.shape[1], train_data.shape[2], train_data.shape[3])))
+    model.add(LeakyReLU(alpha=0.03))
     model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
     model.add(Dropout(0.3))
@@ -74,20 +83,27 @@ if __name__ == '__main__':
 
     model.add(Dense(256, activation='relu'))
     model.add(BatchNormalization())
+    model.add(Dropout(0.5))
+    model.add(Dense(512, activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.5))
     model.add(Dense(7))
     model.add(Activation('softmax'))
 
-    optimizer = RMSprop()
+    optimizer = Adam()
     model.compile(loss='categorical_crossentropy',
                   optimizer= optimizer,
                   metrics=['accuracy'])
     model.summary()
     # # early_stopping = EarlyStopping(monitor='val_loss', patience=3)
-    model.fit(train_data, train_label, epochs=ITERATION, batch_size=BATCH_SIZE, verbose=1, validation_data=(train_data_test, train_label_test))
-    #
+    train_history = model.fit(train_data, train_label, epochs=ITERATION, batch_size=BATCH_SIZE, verbose=1, validation_data=(train_data_test, train_label_test))
+
     score = model.evaluate(train_data_test, train_label_test)
     print("Loss: {}".format(score[0]))
     print("Accuracy: {}".format(score[1]))
     #
-    model.save('./model/model_cnn.h5')
+    plot_model(model, to_file='cnn_model.png')
+    model.save('./model/model_cnn_v6.h5')
+    utils.show_train_history(train_history, 'acc', 'val_acc', 'acc.png')
+    utils.show_train_history(train_history, 'loss', 'val_loss', 'loss.png')
     # del model
