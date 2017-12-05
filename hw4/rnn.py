@@ -9,6 +9,7 @@ from keras.preprocessing.text import Tokenizer
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.layers.core import Dense, Dropout, Activation
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 import parseData
 
 
@@ -42,7 +43,9 @@ if __name__ == '__main__':
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     # print(model.summary())
-    model.fit(X_train, y_train, epochs=EPOCHS, batch_size=128)
+    earlystopping = EarlyStopping(monitor='val_loss', patience = 10)
+    checkpoint = ModelCheckpoint(filepath='./model/best.h5', save_best_only=True, monitor='val_loss')
+    model.fit(X_train, y_train, epochs=EPOCHS, batch_size=128, callbacks=[checkpoint],validation_split = 0.1)
 
     model.save('./model/rnn_model_1.h5')  # creates a HDF5 file 'my_model.h5'
     # del model
