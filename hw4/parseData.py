@@ -6,6 +6,7 @@ import pandas as pd
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import np_utils
+from sklearn.feature_extraction.text import CountVectorizer
 
 def unicodeToAscii(s):
     return ''.join(
@@ -19,6 +20,33 @@ def normalizeString(s):
     s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
     s = re.sub(r"\s+", r" ", s).strip()
     return s
+
+def bowSequence(dataPath):
+    corpus = []
+    training_label = []
+    with open(dataPath+'training_label.txt','r') as f:
+        for index, line in enumerate(f):
+            if index % 1000 == 0:
+                print('\rParse training data, line {}'.format(index), end='', flush=True)
+            doc = []
+            line = line.split(' +++$+++ ')
+            words = normalizeString(line[1])
+            training_label.append(line[0])
+            corpus.append(words)
+    vectorizer = CountVectorizer()
+    vectorizer.fit(corpus)
+    training_bagOfDense = vectorizer.transform(corpus).todense()
+    corpus = []
+    with open(dataPath+'testing_data.txt','r') as readFile:
+        lines = readFile.read().splitlines()
+        lines = lines[1:] # ignore id, text
+        for index, line in enumerate(lines):
+            start = line.find(',')
+            words = normalizeString(line[start+1:])
+            corpus.append(words)
+    test_bagOfDense = vectorizer.transform(corpus).todense()
+    training_label = np.array(training_label)
+    return training_bagOfDense, training_label, test_bagOfDense, len(vectorizer.vocabulary_), len(vectorizer.vocabulary_)
 
 def gen_sequence(label_x):
     tokenizer = Tokenizer()
@@ -37,7 +65,8 @@ def readTrainingData(dataPath):
     with open(dataPath+'training_label.txt','r') as readFile:
         lines = readFile.read().splitlines()
         for index, line in enumerate(lines):
-            print('\rParse training data, line {}'.format(index+1), end='', flush=True)
+            if index % 1000 == 0:
+                print('\rParse training data, line {}'.format(index), end='', flush=True)
             line = line.split(' +++$+++ ')
             words = normalizeString(line[1])
             training_label.append(line[0])
@@ -70,3 +99,6 @@ def readTestingData(dataPath):
         test_sequence = tokenizer.texts_to_sequences(test_data)
         test_sequence = pad_sequences(test_sequence, maxlen=36)
         return test_sequence
+
+if __name__ == '__main__':
+    bowSequence('./data/')
