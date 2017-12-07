@@ -13,14 +13,23 @@ import sys, os
 import parseData
 
 def main(argv):
-    testing_data = parseData.readTestingData('./data/')
-    # max_review_length = 36
-    # testing_data = sequence.pad_sequences(testing_data, maxlen=max_review_length)
+    testing_data = parseData.readTestingData(argv[1])
 
-    # print("Start reading model ...")
-    model = load_model('./model/rnn_model_1.h5')
-    # print("Predict ...")
-    result = model.predict(testing_data, batch_size=64, verbose=0)
+    print("Start reading model ...")
+    model = load_model('./currentbest.h5')
+    print("Predict ...")
+    tmpResult = model.predict(testing_data, verbose=0)
+
+    model1 = load_model('./currentbest1.h5')
+    print("Predict ...")
+    tmpResult1 = model1.predict(testing_data, verbose=0)
+
+    tmpResult = np.array(tmpResult)
+    tmpResult1 = np.array(tmpResult1)
+
+    result = tmpResult + tmpResult1
+    result /= 2
+
     writeText = "id,label\n"
     for i, ans in enumerate(result):
         if float(ans) > 0.5:
@@ -28,8 +37,8 @@ def main(argv):
         else:
             ans = 0
         writeText += str(i) + ',' + str(ans) + '\n'
-    filename = './result1205.csv'
-    # os.makedirs(os.path.dirname(filename), exist_ok=True)
+    filename = argv[2]
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "w") as f:
         f.write(writeText)
 
