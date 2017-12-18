@@ -27,7 +27,6 @@ def main(argv):
     filename = argv[2]
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     recommendations.to_csv(filename, index=False, columns=['TestDataID', 'Rating'])
-    print(recommendations)
 
 if __name__ == '__main__':
     main(sys.argv)
