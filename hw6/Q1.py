@@ -47,7 +47,8 @@ if __name__ == '__main__':
         draw_img(U.T[i], eigenface_path + str(i) + '.jpg')
 
     for i in draw:
-        weight = np.dot(X_ori[i], U[:,:4])
+        # weight = np.dot(X_ori[i], U[:,:4])
+        weight = np.dot(X_ori[i] - X_mean[i], U[:,:4])
         img = np.matmul(U[:,:4], weight)
         img = img + X_mean[i]
         draw_img(img, face_path + str(i) + '.jpg')
