@@ -26,7 +26,7 @@ if __name__ == '__main__':
     img_path = './img'
     eigenface_path = './img/eigenfaces/'
     face_path = './img/face'
-    # draw = [29, 92, 102, 397]
+    draw = [29, 92, 102, 397]
     if not os.path.exists(img_path):
         os.makedirs(img_path)
     if not os.path.exists(eigenface_path):
@@ -43,17 +43,16 @@ if __name__ == '__main__':
     eigenvalue_sum = np.sum(s)
     # print(s[:4] / eigenvalue_sum)
 
-    # for i in range(4):
-    #     draw_img(U.T[i], eigenface_path + str(i) + '.png')
+    for i in range(4):
+        draw_img(U.T[i], eigenface_path + str(i) + '.jpg')
 
-    # for i in draw:
-    #     weight = np.dot(X_ori[i], U[:,:4])
-    #     img = np.matmul(U[:,:4], weight)
-    #     img = img + X_mean[i]
-    #     draw_img(img, face_path + str(i) + '.png')
-    
+    for i in draw:
+        weight = np.dot(X_ori[i], U[:,:4])
+        img = np.matmul(U[:,:4], weight)
+        img = img + X_mean[i]
+        draw_img(img, face_path + str(i) + '.jpg')
+
     draw = int(argv[2].split('.')[0])
-    print(draw)
     weight = np.dot(X_ori[draw], U[:,:4])
     img = np.matmul(U[:,:4], weight)
     img = img + X_mean[draw]
