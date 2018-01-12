@@ -54,7 +54,8 @@ if __name__ == '__main__':
         draw_img(img, face_path + str(i) + '.jpg')
 
     draw = int(argv[2].split('.')[0])
-    weight = np.dot(X_ori[draw], U[:,:4])
+    # weight = np.dot(X_ori[draw], U[:,:4])
+    weight = np.dot(X_ori[draw] - X_mean[draw], U[:,:4])
     img = np.matmul(U[:,:4], weight)
     img = img + X_mean[draw]
     draw_img(img, 'reconstruction.jpg')
