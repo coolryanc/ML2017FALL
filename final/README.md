@@ -18,3 +18,13 @@
 8. `numpy (1.13.3)`
 
 > These are extracted from: `$pip3 list`.
+
+### How to train / test
+* train
+```sh
+cd ./src
+python3 model.py
+```
+* test
+```sh
+```
