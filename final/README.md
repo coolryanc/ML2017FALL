@@ -21,7 +21,6 @@
 
 ### How to train / test
 * train
-Please download
 ```sh
 cd ./src
 python3 model.py
