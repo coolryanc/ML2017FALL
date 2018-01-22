@@ -21,10 +21,12 @@
 
 ### How to train / test
 * train
+Please download
 ```sh
 cd ./src
 python3 model.py
 ```
 * test
 ```sh
+bash test.sh $test_data_path $result_csv_path
 ```
