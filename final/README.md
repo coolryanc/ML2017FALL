@@ -27,5 +27,6 @@ python3 model.py
 ```
 * test
 ```sh
+cd ./src
 bash test.sh $test_data_path $result_csv_path
 ```
